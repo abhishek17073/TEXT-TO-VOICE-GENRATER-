@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Voice Maker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #eef2f3;
+            color: #333;
+        }
+        header, footer {
+            background: #004080;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        select, button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #004080;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #002040;
+        }
+        .sidebar {
+            width: 20%;
+            background: #ccc;
+            padding: 20px;
+            text-align: center;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Text to Voice Maker</h1>
+    </header>
+    
+    <div class="wrapper">
+        <aside class="sidebar">विज्ञापन स्पेस</aside>
+        
+        <div class="container">
+            <textarea id="textInput" placeholder="अपना टेक्स्ट यहाँ टाइप करें..." maxlength="10000"></textarea>
+            <br>
+            <label for="languageSelect">भाषा चुनें:</label>
+            <select id="languageSelect" onchange="populateVoices()">
+                <option value="hi-IN">हिन्दी</option>
+                <option value="en-US">अंग्रेज़ी</option>
+                <option value="bn-IN">बंगाली</option>
+                <option value="ta-IN">तमिल</option>
+                <option value="te-IN">तेलुगु</option>
+                <option value="mr-IN">मराठी</option>
+                <option value="fr-FR">फ्रेंच</option>
+                <option value="de-DE">जर्मन</option>
+                <option value="es-ES">स्पेनिश</option>
+                <option value="zh-CN">चीनी</option>
+            </select>
+            <br>
+            <label for="voiceSelect">आवाज चुनें:</label>
+            <select id="voiceSelect"></select>
+            <br>
+            <p id="voiceInfo"></p>
+            <button onclick="testVoice()">टेस्ट वॉइस</button>
+            <button onclick="convertTextToSpeech()">आवाज़ में बदलें</button>
+            <button onclick="downloadAudio()">डाउनलोड करें</button>
+            <audio id="audioPlayer" controls></audio>
+            <a id="downloadLink" style="display:none;" download="audio.wav">डाउनलोड ऑडियो</a>
+        </div>
+        
+        <aside class="sidebar">विज्ञापन स्पेस</aside>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 Text to Voice Maker | सभी अधिकार सुरक्षित</p>
+    </footer>
+    
+    <script>
+        let audioBlob;
+        function populateVoices() {
+            let lang = document.getElementById("languageSelect").value;
+            let voices = speechSynthesis.getVoices().filter(voice => voice.lang.startsWith(lang));
+            let voiceSelect = document.getElementById("voiceSelect");
+            voiceSelect.innerHTML = "";
+            voices.forEach(voice => {
+                let option = document.createElement("option");
+                option.value = voice.name;
+                option.textContent = voice.name;
+                voiceSelect.appendChild(option);
+            });
+        }
+        
+        function testVoice() {
+            let voiceName = document.getElementById("voiceSelect").value;
+            let voices = speechSynthesis.getVoices();
+            let speech = new SpeechSynthesisUtterance("यह एक परीक्षण ध्वनि है");
+            speech.voice = voices.find(voice => voice.name === voiceName) || voices[0];
+            document.getElementById("voiceInfo").textContent = `चयनित आवाज: ${voiceName}`;
+            speechSynthesis.speak(speech);
+        }
+        
+        function convertTextToSpeech() {
+            let text = document.getElementById("textInput").value;
+            let voiceName = document.getElementById("voiceSelect").value;
+            if (text.trim() === "") {
+                alert("कृपया टेक्स्ट डालें!");
+                return;
+            }
+            
+            let speech = new SpeechSynthesisUtterance(text);
+            let voices = speechSynthesis.getVoices();
+            speech.voice = voices.find(voice => voice.name === voiceName) || voices[0];
+            speechSynthesis.speak(speech);
+        }
+        
+        speechSynthesis.onvoiceschanged = populateVoices;
+    </script>
+</body>
+</html>
